@@ -16,6 +16,9 @@ export const musicPlayerConfig: MusicPlayerConfig = {
 	// 默认音量 (0-1)
 	volume: 0.7,
 
+	// 是否尝试自动播放（部分浏览器会要求用户先点击页面）
+	autoplay: true,
+
 	// 播放模式：'list'=列表循环, 'one'=单曲循环, 'random'=随机播放
 	playMode: "list",
 

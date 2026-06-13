@@ -33,6 +33,7 @@ const managerConfigStr = JSON.stringify({
 	meting: config.meting,
 	localPlaylist: localPlaylist,
 	volume: config.volume ?? 0.7,
+	autoplay: config.autoplay ?? false,
 	playMode: config.playMode ?? "list",
 	showLyrics: config.showLyrics ?? true,
 	i18n: {
@@ -201,6 +202,47 @@ const managerConfigStr = JSON.stringify({
     }
 
     // ── Track loading ────────────────────────────────────────
+    var autoplayUnlockHandler = null;
+    var autoplayUnlockEvents = ['pointerdown', 'keydown', 'touchstart'];
+
+    function clearAutoplayUnlock() {
+        if (!autoplayUnlockHandler) return;
+        autoplayUnlockEvents.forEach(function (eventName) {
+            document.removeEventListener(eventName, autoplayUnlockHandler, true);
+        });
+        autoplayUnlockHandler = null;
+    }
+
+    function scheduleAutoplayUnlock(ver) {
+        clearAutoplayUnlock();
+        autoplayUnlockHandler = function () {
+            clearAutoplayUnlock();
+            if (ver !== loadVersion || state.isPlaying || state.playlist.length === 0) return;
+            playLoadedAudio(ver, false);
+        };
+        autoplayUnlockEvents.forEach(function (eventName) {
+            document.addEventListener(eventName, autoplayUnlockHandler, true);
+        });
+    }
+
+    function playLoadedAudio(ver, allowDeferredAutoplay) {
+        audio.play().then(function () {
+            if (ver !== loadVersion) return; // stale, discard
+            clearAutoplayUnlock();
+            state.isPlaying = true;
+            emit('fm:play-state', { isPlaying: true });
+        }).catch(function (e) {
+            if (ver !== loadVersion) return; // stale, discard
+            if (e.name === 'AbortError') return; // interrupted by new load
+            state.isPlaying = false;
+            emit('fm:play-state', { isPlaying: false });
+            if (allowDeferredAutoplay) {
+                scheduleAutoplayUnlock(ver);
+            }
+            console.warn('Autoplay blocked:', e);
+        });
+    }
+
     function loadTrack(index, autoPlay) {
         if (index < 0 || index >= state.playlist.length) return;
         state.currentIndex = index;
@@ -214,16 +256,9 @@ const managerConfigStr = JSON.stringify({
         emit('fm:track', { index: index, track: track, autoPlay: !!autoPlay });
 
         if (autoPlay) {
-            audio.play().then(function () {
-                if (ver !== loadVersion) return; // stale, discard
-                state.isPlaying = true;
-                emit('fm:play-state', { isPlaying: true });
-            }).catch(function (e) {
-                if (ver !== loadVersion) return; // stale, discard
-                if (e.name === 'AbortError') return; // interrupted by new load
-                console.warn('Autoplay blocked:', e);
-            });
+            playLoadedAudio(ver, config.autoplay === true);
         } else {
+            clearAutoplayUnlock();
             state.isPlaying = false;
             emit('fm:play-state', { isPlaying: false });
         }
@@ -379,7 +414,7 @@ const managerConfigStr = JSON.stringify({
                     isMuted: state.isMuted
                 });
 
-                loadTrack(startIndex, false);
+                loadTrack(startIndex, config.autoplay === true);
             } else {
                 state.initialized = true;
                 emit('fm:init', {
