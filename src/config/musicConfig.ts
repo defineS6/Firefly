@@ -11,7 +11,7 @@ export const musicPlayerConfig: MusicPlayerConfig = {
 	showInNavbar: true,
 
 	// 使用方式："meting" 使用 Meting API，"local" 使用本地音乐列表
-	mode: "meting",
+	mode: "local",
 
 	// 默认音量 (0-1)
 	volume: 0.7,
@@ -20,7 +20,7 @@ export const musicPlayerConfig: MusicPlayerConfig = {
 	playMode: "list",
 
 	// 是否显启用歌词
-	showLyrics: true,
+	showLyrics: false,
 
 	// Meting API 配置
 	meting: {
@@ -50,10 +50,33 @@ export const musicPlayerConfig: MusicPlayerConfig = {
 	local: {
 		playlist: [
 			{
-				name: "使一颗心免于哀伤",
-				artist: "知更鸟 / HOYO-MiX / Chevy",
-				url: "/assets/music/使一颗心免于哀伤-哼唱.mp3",
-				cover: "/assets/music/cover/109951169585655912.webp",
+				name: "The Song of Destiny",
+				artist: "Stellar Blade OST",
+				url: "/assets/music/01.%20The%20Song%20of%20Destiny.mp3",
+				lrc: "",
+			},
+			{
+				name: "Shelter (Title)",
+				artist: "Stellar Blade OST",
+				url: "/assets/music/02.%20Shelter%20%28Title%29.mp3",
+				lrc: "",
+			},
+			{
+				name: "Silent Street (Type A)",
+				artist: "Stellar Blade OST",
+				url: "/assets/music/08.%20Silent%20Street%20%28Type%20A%29.mp3",
+				lrc: "",
+			},
+			{
+				name: "Elder Naytiba",
+				artist: "Stellar Blade OST",
+				url: "/assets/music/150.%20Elder%20Naytiba.mp3",
+				lrc: "",
+			},
+			{
+				name: "Providence",
+				artist: "Stellar Blade OST",
+				url: "/assets/music/153.%20Providence.mp3",
 				lrc: "",
 			},
 		],
